@@ -1,0 +1,13 @@
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\bin\Release\TLogDataExtractor.exe
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\bin\Release\TLogDataExtractor.pdb
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\obj\x86\Release\TLogDataExtractor.MainForm.resources
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\obj\x86\Release\TLogDataExtractor.Properties.Resources.resources
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\obj\x86\Release\GenerateResource.read.1.tlog
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\obj\x86\Release\GenerateResource.write.1.tlog
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\obj\x86\Release\TLogDataExtractor.exe
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\obj\x86\Release\TLogDataExtractor.pdb
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\bin\Release\TLogDataExtractor.exe.manifest
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\bin\Release\TLogDataExtractor.application
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\obj\x86\Release\TLogDataExtractor.exe.manifest
+C:\Users\andrew\Documents\Visual Studio 2010\Projects\TLogDataExtractor\TLogDataExtractor\obj\x86\Release\TLogDataExtractor.application
