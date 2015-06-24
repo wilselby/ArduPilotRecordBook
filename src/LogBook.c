@@ -1,10 +1,10 @@
 /*
  ============================================================================
  Name        : LogBook.c
- Author      : 
- Version     :
+ Author      : Wil Selby
+ Version     : v0.1
  Copyright   : Your copyright notice
- Description : Hello World in C, Ansi-style
+ Description : Processes ArduPilot telemetry log .csv files and creates a flight log book
  ============================================================================
  */
 
@@ -13,15 +13,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 //Defines
 #define LOCAL_PI 3.1415926535897932385
-
+#define MAX_LOGS 10
 
 //Variables
+char *input_array[MAX_LOGS];
+int num_input_files = 0;
+int i;
+int j;
+int k;
+FILE *fileOut;
+FILE *stream;
 char line[1024];
 char* line_in;
-int i;
 char* tmp;
 char* dtg;
 char* t_start;
@@ -34,10 +39,8 @@ char* date;
 int datetime_flag = 0;
 int type_flag = 0;
 int autopilot_flag = 0;
-int endtime_flag = 0;
 char* MAV_type;
 char* MAV_autopilot;
-
 int counter = 0;
 
 struct GPS_dist{
@@ -60,7 +63,7 @@ typedef struct log_variables
 	char[] date;
 
 }log_variables;
-*/
+ */
 
 //Heartbeat Message
 typedef struct __mavlink_heartbeat_t
@@ -155,26 +158,26 @@ char* mavType(int input)
 {
 	switch (input)
 	{
-		case MAV_TYPE_GENERIC: return "Generic sUAS";
-		case MAV_TYPE_FIXED_WING: return "Fixed Wing";
-		case MAV_TYPE_QUADROTOR: return "Quadrotor";
-		case MAV_TYPE_COAXIAL: return "Coaxial Helicopter";
-		case MAV_TYPE_HELICOPTER: return "Helicopter";
-		case MAV_TYPE_ANTENNA_TRACKER: return "Antenna Tracker";
-		case MAV_TYPE_GCS: return "GCS";
-		case MAV_TYPE_AIRSHIP: return "Airship";
-		case MAV_TYPE_FREE_BALLOON: return "Free Balloon";
-		case MAV_TYPE_ROCKET: return "Rocket";
-		case MAV_TYPE_GROUND_ROVER: return "Ground Rover";
-		case MAV_TYPE_SURFACE_BOAT: return "Surface Boat";
-		case MAV_TYPE_SUBMARINE: return "Submarine";
-		case MAV_TYPE_HEXAROTOR: return "Hexarotor";
-		case MAV_TYPE_OCTOROTOR: return "Octotor";
-		case MAV_TYPE_TRICOPTER: return "Tricopter";
-		case MAV_TYPE_FLAPPING_WING: return "Flapping Wing";
-		case MAV_TYPE_KITE: return "Kite";
-		case MAV_TYPE_ONBOARD_CONTROLLER: return "Onboard Companion Controller";
-		default : return "Unknown";
+	case MAV_TYPE_GENERIC: return "Generic sUAS";
+	case MAV_TYPE_FIXED_WING: return "Fixed Wing";
+	case MAV_TYPE_QUADROTOR: return "Quadrotor";
+	case MAV_TYPE_COAXIAL: return "Coaxial Helicopter";
+	case MAV_TYPE_HELICOPTER: return "Helicopter";
+	case MAV_TYPE_ANTENNA_TRACKER: return "Antenna Tracker";
+	case MAV_TYPE_GCS: return "GCS";
+	case MAV_TYPE_AIRSHIP: return "Airship";
+	case MAV_TYPE_FREE_BALLOON: return "Free Balloon";
+	case MAV_TYPE_ROCKET: return "Rocket";
+	case MAV_TYPE_GROUND_ROVER: return "Ground Rover";
+	case MAV_TYPE_SURFACE_BOAT: return "Surface Boat";
+	case MAV_TYPE_SUBMARINE: return "Submarine";
+	case MAV_TYPE_HEXAROTOR: return "Hexarotor";
+	case MAV_TYPE_OCTOROTOR: return "Octotor";
+	case MAV_TYPE_TRICOPTER: return "Tricopter";
+	case MAV_TYPE_FLAPPING_WING: return "Flapping Wing";
+	case MAV_TYPE_KITE: return "Kite";
+	case MAV_TYPE_ONBOARD_CONTROLLER: return "Onboard Companion Controller";
+	default : return "Unknown";
 	}
 }
 
@@ -182,24 +185,24 @@ char* apType(int input)
 {
 	switch (input)
 	{
-		case MAV_AUTOPILOT_GENERIC: return "Generic Autopilot";
-		case MAV_AUTOPILOT_PIXHAWK: return "PIXHAWK";
-		case MAV_AUTOPILOT_SLUGS: return "SLUGS";
-		case MAV_AUTOPILOT_ARDUPILOTMEGA: return "ArduPilotMega";
-		case MAV_AUTOPILOT_OPENPILOT: return "OpenPilot";
-		case MAV_AUTOPILOT_GENERIC_WAYPOINTS_ONLY: return "Generic (waypoints)";
-		case MAV_AUTOPILOT_GENERIC_WAYPOINTS_AND_SIMPLE_NAVIGATION_ONLY: return "Generic (waypoints+)";
-		case MAV_AUTOPILOT_GENERIC_MISSION_FULL: return "Generic (full mission)";
-		case MAV_AUTOPILOT_INVALID: return "Invalid";
-		case MAV_AUTOPILOT_PPZ: return "PPZ";
-		case MAV_AUTOPILOT_UDB: return "UAV Dev Board";
-		case MAV_AUTOPILOT_FP: return "FlexiPilot";
-		case MAV_AUTOPILOT_PX4: return "PX4";
-		case MAV_AUTOPILOT_SMACCMPILOT: return "SMACCMPILOT";
-		case MAV_AUTOPILOT_AUTOQUAD: return "AutoQuad";
-		case MAV_AUTOPILOT_ARMAZILA: return "Armazila";
-		case MAV_AUTOPILOT_AEROB: return "Aerob";
-		default : return "Unknown";
+	case MAV_AUTOPILOT_GENERIC: return "Generic Autopilot";
+	case MAV_AUTOPILOT_PIXHAWK: return "PIXHAWK";
+	case MAV_AUTOPILOT_SLUGS: return "SLUGS";
+	case MAV_AUTOPILOT_ARDUPILOTMEGA: return "ArduPilotMega";
+	case MAV_AUTOPILOT_OPENPILOT: return "OpenPilot";
+	case MAV_AUTOPILOT_GENERIC_WAYPOINTS_ONLY: return "Generic (waypoints)";
+	case MAV_AUTOPILOT_GENERIC_WAYPOINTS_AND_SIMPLE_NAVIGATION_ONLY: return "Generic (waypoints+)";
+	case MAV_AUTOPILOT_GENERIC_MISSION_FULL: return "Generic (full mission)";
+	case MAV_AUTOPILOT_INVALID: return "Invalid";
+	case MAV_AUTOPILOT_PPZ: return "PPZ";
+	case MAV_AUTOPILOT_UDB: return "UAV Dev Board";
+	case MAV_AUTOPILOT_FP: return "FlexiPilot";
+	case MAV_AUTOPILOT_PX4: return "PX4";
+	case MAV_AUTOPILOT_SMACCMPILOT: return "SMACCMPILOT";
+	case MAV_AUTOPILOT_AUTOQUAD: return "AutoQuad";
+	case MAV_AUTOPILOT_ARMAZILA: return "Armazila";
+	case MAV_AUTOPILOT_AEROB: return "Aerob";
+	default : return "Unknown";
 	}
 }
 
@@ -270,22 +273,22 @@ const char* get_autopilot_type(char* line_input){
 
 double ToRadians(double degrees)
 {
-  double radians = degrees * LOCAL_PI / 180;
-  return radians;
+	double radians = degrees * LOCAL_PI / 180;
+	return radians;
 }
 
 double DirectDistance(double lat1, double lng1, double lat2, double lng2)
 {
-  double earthRadius = 3958.75;
-  double dLat = ToRadians(lat2-lat1);
-  double dLng = ToRadians(lng2-lng1);
-  double a = sin(dLat/2) * sin(dLat/2) +
-             cos(ToRadians(lat1)) * cos(ToRadians(lat2)) *
-             sin(dLng/2) * sin(dLng/2);
-  double c = 2 * atan2(sqrt(a), sqrt(1-a));
-  double dist = earthRadius * c;
-  double meterConversion = 1609.34;
-  return dist * meterConversion;
+	double earthRadius = 3958.75;
+	double dLat = ToRadians(lat2-lat1);
+	double dLng = ToRadians(lng2-lng1);
+	double a = sin(dLat/2) * sin(dLat/2) +
+			cos(ToRadians(lat1)) * cos(ToRadians(lat2)) *
+			sin(dLng/2) * sin(dLng/2);
+	double c = 2 * atan2(sqrt(a), sqrt(1-a));
+	double dist = earthRadius * c;
+	double meterConversion = 1609.34;
+	return dist * meterConversion;
 }
 
 struct GPS_dist calc_distance(char* line_input, struct GPS_dist dist_input){
@@ -442,84 +445,171 @@ void print_row(FILE * log, const char * date, const char * mavtype, const char *
 }
 
 //MAIN
-int main(void) {
+int main(int argc, char *argv[]) {
 
-	//Open log file
-	FILE* stream = fopen("C:\\Users\\test\\Dropbox\\UAS Research\\Log Book Program\\src\\WAP_SURVEY.csv", "r");
+	// Iterate through arguments, print argument names
+	for (i=1; i< argc; i++) {
 
-	if(stream == NULL)
-	{
-		perror("Error opening file");
-		return(-1);
+		//Print Help (flag -h or --help)
+		if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)){
+			printf("\n\nDescription: This program processes ArduPilot telemetry log .csv files and creates a flight log book csv file."
+					"The Mission Planner software is needed to convert the .tlog files into .csv files for input into this program \n"
+					"\n\nUsage: LogBook [options] [arg_name...]\n"
+					"\n"
+					"-h, --help \t\t Displays this usage syntax and exits\n"
+					"-i [input_files] \t List .csv tlog files to be processed. Maximum is 10 \n"
+					"-n [new_output_file] \t Name of the output .csv Log Book file with the \n\t\t\t processed information \n"
+					"-a [old_output_file] \t Append data to the end of exisiting .csv Log Book file\n");
+
+			return 0;
+		}
+
+		//Process input .csv files (flag -i)
+		if (strcmp(argv[i],"-i") == 0){
+
+			//Cycle through list of input files
+			for (j=i+1; j< argc; j++) {
+
+				//If we hit the next flag, break out of the loop
+				if ((strcmp(argv[j],"-n") == 0) || (strcmp(argv[j],"-a") == 0)){
+					break;
+				}
+				else{
+
+					//Don't overload the array of input log files
+					if( (j-2) < MAX_LOGS){
+
+						input_array[j-2] = argv[j];
+						//printf("*** file name %d %s \n",j-1, input_array[j-2]);
+						num_input_files++;
+					}
+					else{
+						printf("Too many logs, max is %d \n", MAX_LOGS);
+					}
+				}
+			}
+		}
+
+		//Open a new output file (flag -n)
+		if (strcmp(argv[i],"-n") == 0){
+
+			//Open output  file
+			fileOut = fopen(argv[i+1], "w");
+
+			if(fileOut == NULL)
+			{
+				perror("Error creating output file");
+				return(-1);
+			}
+			else{
+				printf("Created %s \n", argv[i+1]);
+			}
+
+			//Print Column Header
+			fprintf(fileOut,"Date, MAV Type, Autopilot Type, LOS/FPV, # TO, Time (H:M:S), Distance (km)\n");
+		}
+
+		//Append to an existing output file (flag -a)
+		if (strcmp(argv[i],"-a") == 0){
+
+			//Open output  file
+			fileOut = fopen(argv[i+1], "a");
+
+			if(fileOut == NULL)
+			{
+				perror("Error opening existing output file");
+				return(-1);
+			}
+			else{
+				printf("Appending to %s \n", argv[i+1]);
+			}
+		}
 	}
 
-	//Open output  file
-	FILE *fileOut = fopen("C:\\Users\\test\\Dropbox\\UAS Research\\Log Book Program\\src\\LogFile.csv", "w");
 
-	if(fileOut == NULL)
-	{
-		perror("Error opening file");
-		return(-1);
+	//Iterate through input logs
+	for(k = 0; k<num_input_files; k++){
+
+		//Open log file
+		stream = fopen(input_array[k], "r");
+
+		if(fopen(input_array[k], "r") == NULL)
+		{
+			perror("Error opening log file");
+			printf("Error opening file %s \n", input_array[k]);
+			return(-1);
+		}
+		else{
+			printf("\n\nOpened file %s \n", input_array[k]);
+		}
+
+		//Read Log File
+		while(fgets(line,sizeof(line),stream)!=NULL){
+
+			//puts(line);
+			tmp = strdup(line);
+
+			//Get Date and Start Time
+			if(datetime_flag == 0){
+				dtg = get_datetime(tmp);
+				date = strtok(dtg, "T");  //Separate date from time
+				printf( "\nDate: %s\n", date );
+				t_start = strtok(NULL, "T");
+				printf( "Start Time: %s\n", t_start );
+				datetime_flag = 1;
+			}
+			tmp = strdup(line);
+
+
+			//Get MAV Type
+			if(type_flag == 0){
+				MAV_type = get_MAV_type(tmp);
+			}
+			tmp = strdup(line);
+
+
+			//Get Autopilot type
+			if(autopilot_flag == 0){
+				MAV_autopilot = get_autopilot_type(tmp);
+			}
+			tmp = strdup(line);
+
+			//Calculate distance traveled
+			distance = calc_distance(tmp, distance);
+			distance.total = distance.dist_calc + distance.total;
+
+			free(tmp);
+		}
+
+		printf("Total Distance: %f \n", distance.total);
+
+		//Get End Time
+		dtg = get_datetime(line);
+		date = strtok(dtg, "T");  //Separate date from time
+		t_end = strtok(NULL, "T");
+		printf( "End Time: %s\n", t_end );
+
+		time_sec = calc_time(t_start, t_end);
+		//sec_to_hms(time_sec, time_out);
+		time_out = sec_to_hms(time_sec);
+
+		printf( "Elapsed Time: %s\n", time_out);
+
+		//Print Row
+		print_row(fileOut, date, MAV_type, MAV_autopilot,distance.total, time_out);
+
+		//Reset flags
+		datetime_flag = 0;
+		type_flag = 0;
+		autopilot_flag = 0;
+
+		//Reset GPS struct variables
+		memset(&distance, 0, sizeof(distance));
+
 	}
 
-	//Print Column Header
-	fprintf(fileOut,"Date, MAV Type, Autopilot Type, LOS/FPV, # TO, Time (H:M:S), Distance (km)\n");
-
-
-	//Read Log File
-	while(fgets(line,sizeof(line),stream)!=NULL){
-
-		//puts(line);
-		tmp = strdup(line);
-
-		//Get Date and Start Time
-		if(datetime_flag == 0){
-			dtg = get_datetime(tmp);
-			date = strtok(dtg, "T");  //Separate date from time
-			printf( "Date: %s\n", date );
-			t_start = strtok(NULL, "T");
-			printf( "Start Time: %s\n", t_start );
-			datetime_flag = 1;
-		}
-		tmp = strdup(line);
-
-
-		//Get MAV Type
-		if(type_flag == 0){
-			MAV_type = get_MAV_type(tmp);
-		}
-		tmp = strdup(line);
-
-
-		//Get Autopilot type
-		if(autopilot_flag == 0){
-			MAV_autopilot = get_autopilot_type(tmp);
-		}
-		tmp = strdup(line);
-
-		//Calculate distance traveled
-		distance = calc_distance(tmp, distance);
-		distance.total = distance.dist_calc + distance.total;
-
-		free(tmp);
-	}
-
-	printf("Total Distance: %f \n", distance.total);
-
-	//Get End Time
-	dtg = get_datetime(line);
-	date = strtok(dtg, "T");  //Separate date from time
-	t_end = strtok(NULL, "T");
-	printf( "End Time: %s\n", t_end );
-
-	time_sec = calc_time(t_start, t_end);
-	//sec_to_hms(time_sec, time_out);
-	time_out = sec_to_hms(time_sec);
-
-	printf( "Elapsed Time: %s\n", time_out);
-
-	//Print Row
-	print_row(fileOut, date, MAV_type, MAV_autopilot,distance.total, time_out);
+	//Finished
+	printf("\nProcessing Complete \n");
 
 	//Close File Pointers
 	fclose(stream);
