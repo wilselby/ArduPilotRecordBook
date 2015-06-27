@@ -11,15 +11,25 @@ Autopilot:
 Total Distance:   
 Elapsed Time:   
 
+It will also print out to the console the total distance and time for each MAV Type in the format below:
+
+Final Totals by MAV Type:
+MAV Type: x.xx (km) xx:xx:xx (H:M:S) 
+
 The output file will be a .csv file with the following columns:
 
 Date, MAV Type, Autopilot Type, LOS/FPV, # Take offs, Time (Hours:Minutes:Seconds), Distance (km)
 
+and total distance and time for each MAV type at the bottom in the format:
+
+MAV Type: x.xx (km) xx:xx:xx (H:M:S)
 
 ## Installation
 
+	cd Debug
 	make clean
 	make
+	Logbook.exe [options] [arg_name]
 
 ## Usage
 
