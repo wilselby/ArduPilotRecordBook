@@ -4,7 +4,7 @@
  Author      : Wil Selby
  Version     : v0.1
  Copyright   : Your copyright notice
- Description : Processes ArduPilot telemetry log .csv files and creates a flight log book
+ Description : Processes ArduPilot telemetry log .csv files and creates a flight logbook
  ============================================================================
  */
 
@@ -61,6 +61,7 @@ struct MAV_totals{
 
 	double mav_dist_total[19];  //Distance
 	double mav_time_total[19];  //Time
+	int file_pos;
 };
 
 struct MAV_totals mav_totals;
@@ -266,7 +267,7 @@ const char* get_autopilot_type(char* line_input){
 		//printf( "is num  %s\n", MAV_type_num );
 		int num = atoi( MAV_ap_num );
 		autopilotType = apType(num);
-		printf( "AP: %s\n", autopilotType );
+		printf( "Autopilot: %s\n", autopilotType );
 	}
 
 	return autopilotType;
@@ -434,81 +435,84 @@ const char* get_MAV_type(char* line_input){
 		//printf( "is num  %s\n", MAV_type_num );
 		int num = atoi( MAV_type_num );
 		MAVtype = mavType(num);
-		printf( "Type: %s\n", MAVtype );
+		printf( "MAV Type: %s\n", MAVtype );
 	}
 
 	return MAVtype;
 }
 
-struct MAV_totals calc_MAV_dist_total(struct MAV_totals mav_total_input, char * mavtype, struct GPS_dist dist_input, double time_total_sec )
+struct MAV_totals calc_MAV_dist_total(struct MAV_totals mav_total_input, char * mavtype, double dist_input, double time_total_sec )
 {
 
 	if (strcmp(mavtype,"Generic sUAS") == 0) //0
 	{
-		mav_total_input.mav_dist_total[0] = mav_total_input.mav_dist_total[0] + dist_input.total;
+		mav_total_input.mav_dist_total[0] = mav_total_input.mav_dist_total[0] + dist_input;
 		mav_total_input.mav_time_total[0] = mav_total_input.mav_time_total[0] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Fixed Wing") == 0) //1
 	{
-		mav_total_input.mav_dist_total[1] = mav_total_input.mav_dist_total[1] + dist_input.total;
+		mav_total_input.mav_dist_total[1] = mav_total_input.mav_dist_total[1] + dist_input;
 		mav_total_input.mav_time_total[1] = mav_total_input.mav_time_total[1] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Quadrotor") == 0) //2
 	{
-		mav_total_input.mav_dist_total[2] = mav_total_input.mav_dist_total[2] + dist_input.total;
+		mav_total_input.mav_dist_total[2] = mav_total_input.mav_dist_total[2] + dist_input;
 		mav_total_input.mav_time_total[2] = mav_total_input.mav_time_total[2] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Coaxial Helicopter") == 0) //3
 	{
-		mav_total_input.mav_dist_total[3] = mav_total_input.mav_dist_total[3] + dist_input.total;
+		mav_total_input.mav_dist_total[3] = mav_total_input.mav_dist_total[3] + dist_input;
 		mav_total_input.mav_time_total[3] = mav_total_input.mav_time_total[3] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Helicopter") == 0) //4
 	{
-		mav_total_input.mav_dist_total[4] = mav_total_input.mav_dist_total[4] + dist_input.total;
+		mav_total_input.mav_dist_total[4] = mav_total_input.mav_dist_total[4] + dist_input;
 		mav_total_input.mav_time_total[4] = mav_total_input.mav_time_total[4] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Airship") == 0) //7
 	{
-		mav_total_input.mav_dist_total[7] = mav_total_input.mav_dist_total[7] + dist_input.total;
+		mav_total_input.mav_dist_total[7] = mav_total_input.mav_dist_total[7] + dist_input;
 		mav_total_input.mav_time_total[7] = mav_total_input.mav_time_total[7] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Surface Boat") == 0) //11
 	{
-		mav_total_input.mav_dist_total[11] = mav_total_input.mav_dist_total[11] + dist_input.total;
+		mav_total_input.mav_dist_total[11] = mav_total_input.mav_dist_total[11] + dist_input;
 		mav_total_input.mav_time_total[11] = mav_total_input.mav_time_total[11] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Hexarotor") == 0) //13
 	{
-		mav_total_input.mav_dist_total[13] = mav_total_input.mav_dist_total[13] + dist_input.total;
+		mav_total_input.mav_dist_total[13] = mav_total_input.mav_dist_total[13] + dist_input;
 		mav_total_input.mav_time_total[13] = mav_total_input.mav_time_total[13] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Octotor") == 0) //14
 	{
-		mav_total_input.mav_dist_total[14] = mav_total_input.mav_dist_total[14] + dist_input.total;
+		mav_total_input.mav_dist_total[14] = mav_total_input.mav_dist_total[14] + dist_input;
 		mav_total_input.mav_time_total[14] = mav_total_input.mav_time_total[14] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Tricopter") == 0) //15
 	{
-		mav_total_input.mav_dist_total[15] = mav_total_input.mav_dist_total[15] + dist_input.total;
+		mav_total_input.mav_dist_total[15] = mav_total_input.mav_dist_total[15] + dist_input;
 		mav_total_input.mav_time_total[15] = mav_total_input.mav_time_total[15] + time_total_sec;
 	}
 	if (strcmp(mavtype,"Flapping Wing") == 0) //16
 	{
-		mav_total_input.mav_dist_total[16] = mav_total_input.mav_dist_total[16] + dist_input.total;
+		mav_total_input.mav_dist_total[16] = mav_total_input.mav_dist_total[16] + dist_input;
 		mav_total_input.mav_time_total[16] = mav_total_input.mav_time_total[16] + time_total_sec;
 	}
 
 	return mav_total_input;
 }
 
-void print_totals( FILE * log, struct MAV_totals mav_total_input){
+void print_totals( FILE * log, struct MAV_totals mav_total_input, int write){
 
 	char* time_hms;
 	char* MAV_type_print;
 	int l;
+	int first_line_flag = 0;
 
-	printf("\n\nTotals by MAV Type:\n");
+	if(write){
+		fprintf(log,"\n\n");	//Make space from the row entries
+	}
 
 	//Iterate through all MAV Types
 	for(l=0; l<=(MAV_TYPE_ENUM_END-1); l++){
@@ -518,8 +522,14 @@ void print_totals( FILE * log, struct MAV_totals mav_total_input){
 
 			time_hms = sec_to_hms(mav_totals.mav_time_total[l]);	//Convert time from seconds to H:M:S string
 			MAV_type_print = mavType(l);
-			printf("%s Totals: %.2f (km) %s (H:M:S) \n", MAV_type_print, mav_totals.mav_dist_total[l]/1000, time_hms);
-			fprintf(log, "%s Totals:, , , , , %s, %.2f \n", MAV_type_print, time_hms, mav_totals.mav_dist_total[l]/1000);
+			printf("%s: %.2f (km) %s (H:M:S) \n", MAV_type_print, mav_totals.mav_dist_total[l]/1000, time_hms);
+			if(write && (first_line_flag == 0) ){
+				fprintf(log, "Totals:,%s, , , , %s, %.2f \n", MAV_type_print, time_hms, mav_totals.mav_dist_total[l]/1000);
+			}
+			if(write && (first_line_flag == 1) ){
+				fprintf(log, " ,%s, , , , %s, %.2f \n", MAV_type_print, time_hms, mav_totals.mav_dist_total[l]/1000);
+			}
+			first_line_flag = 1;	//So we don't writhe the word "Total" on every line
 		}
 	}
 }
@@ -527,6 +537,118 @@ void print_totals( FILE * log, struct MAV_totals mav_total_input){
 void print_entry(FILE * log, const char * date, const char * mavtype, const char * aptype, double distance, char * time){
 
 	fprintf(log,"%s, %s, %s, LOS/FPV, 1 , %s, %.2f\n", date, mavtype, aptype, time, distance/1000);
+}
+
+struct MAV_totals extract_totals(FILE * old_log, struct MAV_totals mav_total_input){
+
+	char* tmp2;
+	char* totals;
+	char buffer[1024];
+	char* MAV_type_old_tot;
+	char* old_dist_tot;
+	char* old_time_tot;
+	double old_dist;
+	double old_time;
+	char* tmp3;
+	char* tok;
+	double h1, m1, s1;
+	int totals_flag = 0;
+	char* log_entry;
+	int num_logs = 0;
+	fpos_t position;
+	int n;
+	int count;
+
+	fseek(old_log, 0, SEEK_SET);	//If using a+, rewind to beginning of the file
+
+	while(fgets(buffer,sizeof(buffer),old_log)!=NULL){
+
+		tmp2 = strdup(buffer);
+
+		//Count the number of old log entries so we can move the write pointer
+		log_entry = getfield(tmp2,1);
+		tmp2 = strdup(buffer);
+		tok = strtok(tmp2, "-"); //If the first entry is deliminated by '-'
+		n = atoi(tok);
+		count = 0;  //reset each time
+		while(n!=0)
+		  {
+		      n/=10;
+		      count=count+1;
+		  }
+
+		if (count == 4){	//And is a 4 digit year
+			num_logs++;	//It's a valid old log entry
+			mav_total_input.file_pos=ftell(old_log);
+			//printf("file POS %d \n",mav_total_input.file_pos);
+		}
+
+		//Look for subsequent MAV type totals
+		if(totals_flag){
+
+			MAV_type_old_tot = getfield(tmp2,2);
+			tmp2 = strdup(buffer);
+
+			old_time_tot = getfield(tmp2,6);
+			tmp2 = strdup(buffer);
+
+			//Convert time to seconds
+			tmp3 = strdup(old_time_tot);
+			tok = strtok(tmp3, ":");
+			h1 = atof(tok);
+			tok = strtok(NULL, ":");
+			m1 = atof(tok);
+			tok = strtok(NULL, ":");
+			s1 = atof(tok);
+
+			old_time = 3600*h1 + 60*m1 +s1;
+
+			old_dist_tot = getfield(tmp2,7);
+			tmp2 = strdup(buffer);
+			old_dist = 1000*atof( old_dist_tot );	//Convert back to m
+
+			mav_total_input = calc_MAV_dist_total(mav_total_input, MAV_type_old_tot, old_dist, old_time);
+		}
+
+		//Find Totals Line
+		totals = getfield(tmp2,1);
+		tmp2 = strdup(buffer);
+		if (strcmp(totals,"Totals:") == 0){
+
+			MAV_type_old_tot = getfield(tmp2,2);
+			tmp2 = strdup(buffer);
+
+			old_time_tot = getfield(tmp2,6);
+			tmp2 = strdup(buffer);
+
+			//Convert time to seconds
+			tmp3 = strdup(old_time_tot);
+			tok = strtok(tmp3, ":");
+			h1 = atof(tok);
+			tok = strtok(NULL, ":");
+			m1 = atof(tok);
+			tok = strtok(NULL, ":");
+			s1 = atof(tok);
+
+			old_time = 3600*h1 + 60*m1 +s1;
+
+			old_dist_tot = getfield(tmp2,7);
+			tmp2 = strdup(buffer);
+			old_dist = 1000*atof( old_dist_tot );	//Convert back to m
+
+			mav_total_input = calc_MAV_dist_total(mav_total_input, MAV_type_old_tot, old_dist, old_time);
+
+			totals_flag = 1;
+		}
+	}
+
+	printf("\nRead %d log(s) from previous file\n",num_logs);
+
+
+	//Remove old total values be moving the file pointer
+	fseek(old_log, mav_total_input.file_pos, SEEK_SET);	//If using a+, rewind to beginning of the file
+
+	return mav_total_input;
 }
 
 //MAIN
@@ -537,14 +659,14 @@ int main(int argc, char *argv[]) {
 
 		//Print Help (flag -h or --help)
 		if ((strcmp(argv[i],"-h") == 0) || (strcmp(argv[i],"--help") == 0)){
-			printf("\n\nDescription: This program processes ArduPilot telemetry log .csv files and creates a flight log book csv file."
+			printf("\n\nDescription: This program processes ArduPilot telemetry log .csv files and creates a flight logbook csv file."
 					"The Mission Planner software is needed to convert the .tlog files into .csv files for input into this program \n"
-					"\n\nUsage: LogBook [options] [arg_name...]\n"
+					"\n\nUsage: Logbook [options] [arg_name...]\n"
 					"\n"
 					"-h, --help \t\t Displays this usage syntax and exits\n"
-					"-i [input_files] \t List .csv tlog files to be processed. Maximum is 10 \n"
-					"-n [new_output_file] \t Name of the output .csv Log Book file with the \n\t\t\t processed information \n"
-					"-a [old_output_file] \t Append data to the end of exisiting .csv Log Book file\n");
+					"-i [input_files] \t The input .csv file name(s)/path(s) to be processed. Maximum is 10 \n"
+					"-n [new_output_file] \t Name of the .csv Logbook file to be created \n"
+					"-a [old_output_file] \t Name of the exisisting .csv Logbook file to be updated\n");
 
 			return 0;
 		}
@@ -587,18 +709,19 @@ int main(int argc, char *argv[]) {
 				return(-1);
 			}
 			else{
-				printf("\nCreated %s \n", argv[i+1]);
+				printf("\nCreated Logbook: %s \n", argv[i+1]);
 			}
 
 			//Print Column Header
 			fprintf(fileOut,"Date, MAV Type, Autopilot Type, LOS/FPV, # TO, Time (H:M:S), Distance (km)\n");
+
 		}
 
 		//Append to an existing output file (flag -a)
 		if (strcmp(argv[i],"-a") == 0){
 
 			//Open output  file
-			fileOut = fopen(argv[i+1], "a");
+			fileOut = fopen(argv[i+1], "r+");	//Read and append (a+)
 
 			if(fileOut == NULL)
 			{
@@ -606,8 +729,16 @@ int main(int argc, char *argv[]) {
 				return(-1);
 			}
 			else{
-				printf("Appending to %s \n", argv[i+1]);
+				printf("Opened Existing Logbook: %s \n", argv[i+1]);
 			}
+
+			//Extract old total values
+			mav_totals = extract_totals(fileOut, mav_totals);
+
+			//Print totals read to console but not to output file
+			printf("\nExisiting Totals by MAV Type:\n");
+			print_totals( fileOut, mav_totals, 0);
+
 		}
 	}
 
@@ -625,7 +756,7 @@ int main(int argc, char *argv[]) {
 			return(-1);
 		}
 		else{
-			printf("\nOpened file %s", input_array[k]);
+			printf("\nOpened Flight Log %s", input_array[k]);
 		}
 
 		//Read Log File
@@ -640,7 +771,7 @@ int main(int argc, char *argv[]) {
 				date = strtok(dtg, "T");  //Separate date from time
 				printf( "\nDate: %s\n", date );
 				t_start = strtok(NULL, "T");
-				printf( "Start Time: %s\n", t_start );
+				//printf( "Start Time: %s\n", t_start );
 				datetime_flag = 1;
 			}
 			tmp = strdup(line);
@@ -672,7 +803,7 @@ int main(int argc, char *argv[]) {
 		dtg = get_datetime(line);
 		date = strtok(dtg, "T");  //Separate date from time
 		t_end = strtok(NULL, "T");
-		printf( "End Time: %s\n", t_end );
+		//printf( "End Time: %s\n", t_end );
 
 		time_sec = calc_time(t_start, t_end);
 		//sec_to_hms(time_sec, time_out);
@@ -681,7 +812,7 @@ int main(int argc, char *argv[]) {
 		printf( "Elapsed Time: %s\n", time_out);
 
 		//Update Platform totals
-		mav_totals = calc_MAV_dist_total(mav_totals, MAV_type, distance, time_sec);
+		mav_totals = calc_MAV_dist_total(mav_totals, MAV_type, distance.total, time_sec);
 
 		//Print Row
 		print_entry(fileOut, date, MAV_type, MAV_autopilot,distance.total, time_out);
@@ -696,9 +827,9 @@ int main(int argc, char *argv[]) {
 
 	}
 
-	//Print Platform Totals
-	fprintf(fileOut,"\n\n");	//Make space from the row entries
-	print_totals( fileOut, mav_totals);
+	//Print Platform Totals to console and output file
+	printf("\nFinal Totals by MAV Type:\n");
+	print_totals( fileOut, mav_totals, 1);
 
 	//Finished
 	printf("\nProcessing Complete \n");

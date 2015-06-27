@@ -1,1 +1,1 @@
-src/LogBook.d: ../src/LogBook.c
+src/Logbook.d: ../src/Logbook.c

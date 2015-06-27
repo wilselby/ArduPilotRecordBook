@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../src/LogBook.c 
+../src/Logbook.c 
 
 OBJS += \
-./src/LogBook.o 
+./src/Logbook.o 
 
 C_DEPS += \
-./src/LogBook.d 
+./src/Logbook.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
