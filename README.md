@@ -13,7 +13,7 @@ Elapsed Time:
 
 It will also print out to the console the total distance and time for each MAV Type in the format below:
 
-Final Totals by MAV Type:
+Final Totals by MAV Type:  
 MAV Type: x.xx (km) xx:xx:xx (H:M:S) 
 
 The output file will be a .csv file with the following columns:
