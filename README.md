@@ -20,9 +20,9 @@ The output file will be a .csv file with the following columns:
 
 Date, MAV Type, Autopilot Type, LOS/FPV, # Take offs, Time (Hours:Minutes:Seconds), Distance (km)
 
-and total distance and time for each MAV type at the bottom in the format:
+and total number of flights, distance, and time for each MAV type at the bottom in the format:
 
-MAV Type: x.xx (km) xx:xx:xx (H:M:S)
+MAV Type: Flights x Distance x.xx (km) Time xx:xx:xx (H:M:S)
 
 ## Installation
 
@@ -50,6 +50,7 @@ MAV Type: x.xx (km) xx:xx:xx (H:M:S)
 
 ## History
 
+v0.4 - Added calculation of total number of flights per platform
 v0.3 - Read and update existing Logbook files  
 v0.3 - Added sitance and time totals computation  
 v0.2 - Added command line inputs  
