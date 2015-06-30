@@ -11,10 +11,10 @@ Autopilot:
 Total Distance:   
 Elapsed Time:   
 
-It will also print out to the console the total distance and time for each MAV Type in the format below:
+It will also print out to the console the total number of flights, distance, and time for each MAV Type in the format below:
 
 Final Totals by MAV Type:  
-MAV Type: x.xx (km) xx:xx:xx (H:M:S) 
+MAV Type: Flights x Distance x.xx (km) Time xx:xx:xx (H:M:S) 
 
 The output file will be a .csv file with the following columns:
 
@@ -50,7 +50,7 @@ MAV Type: Flights x Distance x.xx (km) Time xx:xx:xx (H:M:S)
 
 ## History
 
-v0.4 - Added calculation of total number of flights per platform
+v0.4 - Added calculation of total number of flights per platform  
 v0.3 - Read and update existing Logbook files  
 v0.3 - Added sitance and time totals computation  
 v0.2 - Added command line inputs  
