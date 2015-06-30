@@ -32,6 +32,7 @@ char* dtg;
 char* t_start;
 char* t_end;
 char * time_out;
+int num_to;
 double dist;
 double time_sec = 0;
 int log_processed = 0;
@@ -61,6 +62,7 @@ struct MAV_totals{
 
 	double mav_dist_total[19];  //Distance
 	double mav_time_total[19];  //Time
+	int mav_to_total[19];	//Flights
 	int file_pos;
 };
 
@@ -208,9 +210,9 @@ char* apType(int input)
 	}
 }
 
-const char* getfield(char* line, int num)
+char* getfield(char* line, int num)
 {
-	const char* tok;
+	char* tok;
 	int x;
 	for ( x = 1; x <= num; x++ )
 	{
@@ -230,7 +232,7 @@ const char* getfield(char* line, int num)
 	return tok;
 }
 
-const char* get_datetime(char* line_input){
+char* get_datetime(char* line_input){
 
 	char* date_time;
 
@@ -241,12 +243,11 @@ const char* get_datetime(char* line_input){
 	return date_time;
 }
 
-const char* get_autopilot_type(char* line_input){
+char* get_autopilot_type(char* line_input){
 
 	char* autopilotType;
 	char* msg_name;
 	char* MAV_ap_num;
-	char* tmp;
 
 	msg_name = getfield(line_input,13);
 
@@ -370,13 +371,11 @@ char* sec_to_hms(double time){
 
 double calc_time(char* start, char* finish){
 
-	char* out;
 	char* tmp;
 	char* tok;
 	double h1, h2, m1, m2, s1, s2;
 	double seconds1, seconds2;
 	double diff;
-	double hf, mf, sf;
 
 	//Convert Start Time to seconds
 	tmp = strdup(start);
@@ -408,12 +407,11 @@ double calc_time(char* start, char* finish){
 	return diff;
 }
 
-const char* get_MAV_type(char* line_input){
+char* get_MAV_type(char* line_input){
 
 	char* MAVtype;
 	char* msg_name;
 	char* MAV_type_num;
-	char* tmp;
 
 	msg_name = getfield(line_input,8);
 
@@ -441,63 +439,74 @@ const char* get_MAV_type(char* line_input){
 	return MAVtype;
 }
 
-struct MAV_totals calc_MAV_dist_total(struct MAV_totals mav_total_input, char * mavtype, double dist_input, double time_total_sec )
+struct MAV_totals calc_MAV_dist_total(struct MAV_totals mav_total_input, char * mavtype, int to, double dist_input, double time_total_sec )
 {
 
 	if (strcmp(mavtype,"Generic sUAS") == 0) //0
 	{
 		mav_total_input.mav_dist_total[0] = mav_total_input.mav_dist_total[0] + dist_input;
 		mav_total_input.mav_time_total[0] = mav_total_input.mav_time_total[0] + time_total_sec;
+		mav_total_input.mav_to_total[0] = mav_total_input.mav_to_total[0] + to;
 	}
 	if (strcmp(mavtype,"Fixed Wing") == 0) //1
 	{
 		mav_total_input.mav_dist_total[1] = mav_total_input.mav_dist_total[1] + dist_input;
 		mav_total_input.mav_time_total[1] = mav_total_input.mav_time_total[1] + time_total_sec;
+		mav_total_input.mav_to_total[1] = mav_total_input.mav_to_total[1] + to;
 	}
 	if (strcmp(mavtype,"Quadrotor") == 0) //2
 	{
 		mav_total_input.mav_dist_total[2] = mav_total_input.mav_dist_total[2] + dist_input;
 		mav_total_input.mav_time_total[2] = mav_total_input.mav_time_total[2] + time_total_sec;
+		mav_total_input.mav_to_total[2] = mav_total_input.mav_to_total[2] + to;
 	}
 	if (strcmp(mavtype,"Coaxial Helicopter") == 0) //3
 	{
 		mav_total_input.mav_dist_total[3] = mav_total_input.mav_dist_total[3] + dist_input;
 		mav_total_input.mav_time_total[3] = mav_total_input.mav_time_total[3] + time_total_sec;
+		mav_total_input.mav_to_total[3] = mav_total_input.mav_to_total[3] + to;
 	}
 	if (strcmp(mavtype,"Helicopter") == 0) //4
 	{
 		mav_total_input.mav_dist_total[4] = mav_total_input.mav_dist_total[4] + dist_input;
 		mav_total_input.mav_time_total[4] = mav_total_input.mav_time_total[4] + time_total_sec;
+		mav_total_input.mav_to_total[4] = mav_total_input.mav_to_total[4] + to;
 	}
 	if (strcmp(mavtype,"Airship") == 0) //7
 	{
 		mav_total_input.mav_dist_total[7] = mav_total_input.mav_dist_total[7] + dist_input;
 		mav_total_input.mav_time_total[7] = mav_total_input.mav_time_total[7] + time_total_sec;
+		mav_total_input.mav_to_total[7] = mav_total_input.mav_to_total[7] + to;
 	}
 	if (strcmp(mavtype,"Surface Boat") == 0) //11
 	{
 		mav_total_input.mav_dist_total[11] = mav_total_input.mav_dist_total[11] + dist_input;
 		mav_total_input.mav_time_total[11] = mav_total_input.mav_time_total[11] + time_total_sec;
+		mav_total_input.mav_to_total[11] = mav_total_input.mav_to_total[11] + to;
 	}
 	if (strcmp(mavtype,"Hexarotor") == 0) //13
 	{
 		mav_total_input.mav_dist_total[13] = mav_total_input.mav_dist_total[13] + dist_input;
 		mav_total_input.mav_time_total[13] = mav_total_input.mav_time_total[13] + time_total_sec;
+		mav_total_input.mav_to_total[13] = mav_total_input.mav_to_total[13] + to;
 	}
 	if (strcmp(mavtype,"Octotor") == 0) //14
 	{
 		mav_total_input.mav_dist_total[14] = mav_total_input.mav_dist_total[14] + dist_input;
 		mav_total_input.mav_time_total[14] = mav_total_input.mav_time_total[14] + time_total_sec;
+		mav_total_input.mav_to_total[14] = mav_total_input.mav_to_total[14] + to;
 	}
 	if (strcmp(mavtype,"Tricopter") == 0) //15
 	{
 		mav_total_input.mav_dist_total[15] = mav_total_input.mav_dist_total[15] + dist_input;
 		mav_total_input.mav_time_total[15] = mav_total_input.mav_time_total[15] + time_total_sec;
+		mav_total_input.mav_to_total[15] = mav_total_input.mav_to_total[15] + to;
 	}
 	if (strcmp(mavtype,"Flapping Wing") == 0) //16
 	{
 		mav_total_input.mav_dist_total[16] = mav_total_input.mav_dist_total[16] + dist_input;
 		mav_total_input.mav_time_total[16] = mav_total_input.mav_time_total[16] + time_total_sec;
+		mav_total_input.mav_to_total[16] = mav_total_input.mav_to_total[16] + to;
 	}
 
 	return mav_total_input;
@@ -522,21 +531,21 @@ void print_totals( FILE * log, struct MAV_totals mav_total_input, int write){
 
 			time_hms = sec_to_hms(mav_totals.mav_time_total[l]);	//Convert time from seconds to H:M:S string
 			MAV_type_print = mavType(l);
-			printf("%s: %.2f (km) %s (H:M:S) \n", MAV_type_print, mav_totals.mav_dist_total[l]/1000, time_hms);
+			printf("%s: Flights- %d Distance- %.2f (km) Time- %s (H:M:S) \n", MAV_type_print, mav_totals.mav_to_total[l] , mav_totals.mav_dist_total[l]/1000, time_hms);
 			if(write && (first_line_flag == 0) ){
-				fprintf(log, "Totals:,%s, , , , %s, %.2f \n", MAV_type_print, time_hms, mav_totals.mav_dist_total[l]/1000);
+				fprintf(log, "Totals:,%s, , ,%d,%s,%.2f \n", MAV_type_print,mav_totals.mav_to_total[l], time_hms, mav_totals.mav_dist_total[l]/1000);
 			}
 			if(write && (first_line_flag == 1) ){
-				fprintf(log, " ,%s, , , , %s, %.2f \n", MAV_type_print, time_hms, mav_totals.mav_dist_total[l]/1000);
+				fprintf(log, " ,%s, , , %d,%s,%.2f \n", MAV_type_print, mav_totals.mav_to_total[l], time_hms, mav_totals.mav_dist_total[l]/1000);
 			}
 			first_line_flag = 1;	//So we don't writhe the word "Total" on every line
 		}
 	}
 }
 
-void print_entry(FILE * log, const char * date, const char * mavtype, const char * aptype, double distance, char * time){
+void print_entry(FILE * log, char * date, char * mavtype, int to, char * aptype, double distance, char * time){
 
-	fprintf(log,"%s, %s, %s, LOS/FPV, 1 , %s, %.2f\n", date, mavtype, aptype, time, distance/1000);
+	fprintf(log,"%s, %s, %s, LOS/FPV, %d , %s, %.2f\n", date, mavtype, aptype, to, time, distance/1000);
 }
 
 struct MAV_totals extract_totals(FILE * old_log, struct MAV_totals mav_total_input){
@@ -555,9 +564,10 @@ struct MAV_totals extract_totals(FILE * old_log, struct MAV_totals mav_total_inp
 	int totals_flag = 0;
 	char* log_entry;
 	int num_logs = 0;
-	fpos_t position;
 	int n;
 	int count;
+	int num_to = 0;
+	char* to;
 
 	fseek(old_log, 0, SEEK_SET);	//If using a+, rewind to beginning of the file
 
@@ -586,9 +596,16 @@ struct MAV_totals extract_totals(FILE * old_log, struct MAV_totals mav_total_inp
 		//Look for subsequent MAV type totals
 		if(totals_flag){
 
+			//Get MAV Type
 			MAV_type_old_tot = getfield(tmp2,2);
 			tmp2 = strdup(buffer);
 
+			//Get num flights
+			to = getfield(tmp2,5);
+			num_to = atoi(to);
+			tmp2 = strdup(buffer);
+
+			//Get time
 			old_time_tot = getfield(tmp2,6);
 			tmp2 = strdup(buffer);
 
@@ -603,11 +620,12 @@ struct MAV_totals extract_totals(FILE * old_log, struct MAV_totals mav_total_inp
 
 			old_time = 3600*h1 + 60*m1 +s1;
 
+			//Get distance
 			old_dist_tot = getfield(tmp2,7);
 			tmp2 = strdup(buffer);
 			old_dist = 1000*atof( old_dist_tot );	//Convert back to m
 
-			mav_total_input = calc_MAV_dist_total(mav_total_input, MAV_type_old_tot, old_dist, old_time);
+			mav_total_input = calc_MAV_dist_total(mav_total_input, MAV_type_old_tot, num_to, old_dist, old_time);
 		}
 
 		//Find Totals Line
@@ -615,9 +633,16 @@ struct MAV_totals extract_totals(FILE * old_log, struct MAV_totals mav_total_inp
 		tmp2 = strdup(buffer);
 		if (strcmp(totals,"Totals:") == 0){
 
+			//Get MAV Type
 			MAV_type_old_tot = getfield(tmp2,2);
 			tmp2 = strdup(buffer);
 
+			//Get num flights
+			to = getfield(tmp2,5);
+			num_to = atoi(to);
+			tmp2 = strdup(buffer);
+
+			//Get time
 			old_time_tot = getfield(tmp2,6);
 			tmp2 = strdup(buffer);
 
@@ -632,11 +657,12 @@ struct MAV_totals extract_totals(FILE * old_log, struct MAV_totals mav_total_inp
 
 			old_time = 3600*h1 + 60*m1 +s1;
 
+			//Get distance
 			old_dist_tot = getfield(tmp2,7);
 			tmp2 = strdup(buffer);
 			old_dist = 1000*atof( old_dist_tot );	//Convert back to m
 
-			mav_total_input = calc_MAV_dist_total(mav_total_input, MAV_type_old_tot, old_dist, old_time);
+			mav_total_input = calc_MAV_dist_total(mav_total_input, MAV_type_old_tot, num_to, old_dist, old_time);
 
 			totals_flag = 1;
 		}
@@ -797,7 +823,7 @@ int main(int argc, char *argv[]) {
 			free(tmp);
 		}
 
-		printf("Total Distance: %f \n", distance.total);
+		printf("Total Distance: %f (m) \n", distance.total);
 
 		//Get End Time
 		dtg = get_datetime(line);
@@ -809,13 +835,15 @@ int main(int argc, char *argv[]) {
 		//sec_to_hms(time_sec, time_out);
 		time_out = sec_to_hms(time_sec);
 
-		printf( "Elapsed Time: %s\n", time_out);
+		printf( "Elapsed Time: %s (H:M:S) \n", time_out);
+
+		num_to = 1; //Hardcoded for now that 1 log = 1 take off
 
 		//Update Platform totals
-		mav_totals = calc_MAV_dist_total(mav_totals, MAV_type, distance.total, time_sec);
+		mav_totals = calc_MAV_dist_total(mav_totals, MAV_type, num_to, distance.total, time_sec);
 
 		//Print Row
-		print_entry(fileOut, date, MAV_type, MAV_autopilot,distance.total, time_out);
+		print_entry(fileOut, date, MAV_type, num_to, MAV_autopilot,distance.total, time_out);
 
 		//Reset flags
 		datetime_flag = 0;
