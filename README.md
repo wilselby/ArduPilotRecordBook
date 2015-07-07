@@ -26,9 +26,11 @@ MAV Type: Flights x Distance x.xx (km) Time xx:xx:xx (H:M:S)
 
 ## Installation
 
-	cd Debug
-	make clean
-	make
+    git clone https://github.com/wilselby/ArduPilotRecordBook.git
+	cd ArduPilotRecordBook/Debug/
+    make clean
+    gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Logbook.d" -MT"src/Logbook.d" -o "src/Logbook.o" "../src/Logbook.c"
+	make all
 	Logbook.exe [options] [arg_name]
 
 ## Usage
