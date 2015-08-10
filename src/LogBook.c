@@ -9,6 +9,7 @@
  */
 
 //Includes
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -69,7 +70,7 @@ struct MAV_totals{
 struct MAV_totals mav_totals;
 
 
-//Heartbeat Message
+//Heartbeat Message (For future reference)
 typedef struct __mavlink_heartbeat_t
 {
 	uint32_t custom_mode; ///< A bitfield for use for autopilot-specific flags.
