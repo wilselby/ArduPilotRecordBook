@@ -69,7 +69,7 @@ struct MAV_totals{
 
 struct MAV_totals mav_totals;
 
-
+/*
 //Heartbeat Message (For future reference)
 typedef struct __mavlink_heartbeat_t
 {
@@ -80,6 +80,7 @@ typedef struct __mavlink_heartbeat_t
 	uint8_t system_status; ///< System status flag, see MAV_STATE ENUM
 	uint8_t mavlink_version; ///< MAVLink version, not writable by user, gets added by protocol because of magic data type: uint8_t_mavlink_version
 } mavlink_heartbeat_t;
+*/
 
 //uint8_t type
 typedef enum MAV_TYPE
